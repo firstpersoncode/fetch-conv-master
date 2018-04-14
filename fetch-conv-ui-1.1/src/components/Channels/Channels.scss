@@ -1,0 +1,16 @@
+.notification {
+  position: relative;
+  > small {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 9px;
+    color: #FFF;
+    padding: 3px;
+    height: 18px;
+    width: 18px;
+    background: red;
+    border-radius: 50%;
+    font-weight: bold;
+  }
+}

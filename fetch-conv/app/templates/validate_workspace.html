@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>fetch-conv</title>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+  </head>
+
+  <body>
+
+    <div class="container">
+
+      <div class="jumbotron">
+        <h1 class='lead center'>Please Wait</h1>
+        <hr/>
+        <div id='message'></div>
+      </div>
+
+
+
+      <footer class="footer">
+        <p>&copy; Nasser Maronie 2018</p>
+      </footer>
+
+    </div>
+
+    <script src='https://code.jquery.com/jquery-3.3.1.min.js'></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script type="text/javascript">
+      $(function() {
+        $('#message').html('Preparing ...')
+        var url = new URL(window.location.href)
+        var code = url.searchParams.get('code')
+        axios.post('/miner/channels/validate', {
+          code
+        })
+        .then(response => {
+          console.log(response.data)
+          if (response.data.message.status) {
+            var payload = response.data.message.payload
+            // var scope = payload.scope
+            // var client_id = payload.client_id
+            setTimeout(function() {
+              $('#message').html(response.data.message.text)
+              setTimeout(function() {
+                window.location.href = 'http://localhost:6500'
+              }, 1000)
+            }, 1000)
+          } else {
+            throw response.data.message.text
+          }
+        })
+        .catch(err => {
+          console.error('Error:', err)
+          $('#message').html(err)
+        })
+      });
+    </script>
+  </body>
+</html>
