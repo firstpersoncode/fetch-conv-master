@@ -21,9 +21,30 @@ export const FETCH_INFO_PRIVATE = 'channel/FETCH/INFO/PRIVATE'
 
 let auth_uri = 'https://slack.com/oauth/authorize'
 
+export function startLoading () {
+  return {
+    type: FETCH_START
+  }
+}
+
+export function finishLoading () {
+  return {
+    type: FETCH_SUCCESS
+  }
+}
+
+export function failedLoading () {
+  return {
+    type: FETCH_FAILED
+  }
+}
+
 
 export function validate (code) {
   return (dispatch) => {
+    dispatch({
+      type: VALIDATE_START
+    })
     return axios.post(miner_endpoint + '/channels/validate', {
       code
     })
@@ -49,58 +70,40 @@ export function validate (code) {
 export function fetchChannelLists(type, c_filter, cursor, limit, firstFetch) {
   let next = cursor && cursor.replace('=', '%3D') || ''
   return (dispatch, getState) => {
-    dispatch({
-      type: FETCH_START
-    })
-    return axios.get(miner_endpoint + '/channels/list' + '/' + c_filter + '/' + type + (next ? '/' + next : firstFetch ? '/first' : '/end') + '/' + limit)
+    return axios.get(miner_endpoint + '/channels/list' + '/' + c_filter + '/' + type + (next ? '/' + next : (firstFetch ? '/first' : '/end')) + '/' + limit)
     .then(res => {
       if (res.data.ok) {
         switch (type) {
           case 'private':
             dispatch({
               type: FETCH_CHANNEL_PRIVATE,
-              // payload: res.data.channels,
+              payload: res.data.channels,
               next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
             })
           break;
           default:
             dispatch({
               type: FETCH_CHANNEL_PUBLIC,
-              // payload: res.data.channels,
+              payload: res.data.channels,
               next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
             })
         }
-
-        dispatch({
-          type: FETCH_SUCCESS
-        })
-
         return res.data.channels
       } else {
-        throw new Error('Failed set channels', type, res)
+        throw new Error('Failed set channels: ' + type + ' ' + res)
       }
     })
     .catch(err => {
       console.error(err)
-      dispatch({
-        type: FETCH_FAILED
-      })
     })
   }
 }
 
 export function fetchChannelInfo (type, id) {
   return (dispatch) => {
-    dispatch({
-      type: FETCH_START
-    })
     return axios.get(miner_endpoint + '/channels/info' + '/' + type + '/' + id)
     .then(res => {
       if (res.data.ok) {
-        dispatch({
-          type: FETCH_SUCCESS
-        })
-
         switch (type) {
           case 'private':
             dispatch({
@@ -117,60 +120,26 @@ export function fetchChannelInfo (type, id) {
         }
 
       } else {
-        throw new Error('Failed set info', type, res)
+        throw new Error('Failed set info: ' + type + ' ' + res)
       }
     })
     .catch(err => {
       console.error(err)
-      dispatch({
-        type: FETCH_FAILED
-      })
     })
   }
 }
 
 export function collect (channel) {
   return (dispatch) => {
-    return axios.post('/api/collect', {
+    return axios.post('http://localhost:6501/api/collect', {
       channel
     })
     .then(res => {
       if (res.data.status) {
-        console.log('Success add channel to db')
+        // console.log('Success add channel to db')
+        return res.data.status
       } else {
-        throw new Error('Failed add channel to db', res)
-      }
-    })
-    .catch(err => {
-      console.error(err)
-    })
-  }
-}
-
-export function connectRTM () {
-  return (dispatch) => {
-    return axios.get(miner_endpoint + '/channels/rtm')
-    .then(res => {
-      if (res.data.ok) {
-        console.log(res)
-      } else {
-        throw new Error('Failed connect RTM', res)
-      }
-    })
-    .catch(err => {
-      console.error(err)
-    })
-  }
-}
-
-export function startRTM () {
-  return (dispatch) => {
-    return axios.get(miner_endpoint + '/channels/rtm/start')
-    .then(res => {
-      if (res.data.ok) {
-        console.log(res)
-      } else {
-        throw new Error('Failed connect RTM', res)
+        throw new Error('Failed add channel to db: ' + res)
       }
     })
     .catch(err => {
@@ -181,6 +150,9 @@ export function startRTM () {
 
 export function statusCheck () {
   return (dispatch) => {
+    dispatch({
+      type: VALIDATE_START
+    })
     return axios.get(miner_endpoint + '/channels/validate/check')
     .then(res => {
       if (res.data.message.status) {
@@ -257,11 +229,13 @@ export default function channelReducer (state = initialState, action) {
 
     case FETCH_CHANNEL_PUBLIC:
       return immutable
+      // .merge('channels.public', action.payload)
       .set('next.public', action.next)
       .done();
 
     case FETCH_CHANNEL_PRIVATE:
       return immutable
+      // .merge('channels.private', action.payload)
       .set('next.private', action.next)
       .done();
 

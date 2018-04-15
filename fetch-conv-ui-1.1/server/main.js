@@ -21,8 +21,8 @@ app.use(session({
   duration: 30 * 60 * 1000,
   activeDuration: 5 * 60 * 1000,
 }))
-// app.use("*", cors())
-// app.use(cors())
+app.use("*", cors())
+app.use(cors())
 app.use(compress())
 app.use(bodyParser.json({limit: '50mb'}))
 app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
@@ -34,7 +34,7 @@ db('mongodb://localhost/fetch-conv')
 //   '/miner'
 // ], proxy({
 //   secure: false,
-//   target: 'http://localhost:6508',
+//   target: 'http://localhost:6500',
 //   changeOrigin: true,
 //   prependPath: false
 // }))

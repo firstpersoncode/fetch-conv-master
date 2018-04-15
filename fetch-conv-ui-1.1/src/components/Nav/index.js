@@ -7,6 +7,8 @@ import Menu, { MenuItem } from 'material-ui/Menu'
 import IconButton from 'material-ui/IconButton'
 import Button from 'material-ui/Button'
 import AccountCircle from '@material-ui/icons/AccountCircle'
+import Home from '@material-ui/icons/Home'
+import PieChart from '@material-ui/icons/PieChart'
 import Hidden from 'material-ui/Hidden'
 
 import './Nav.scss'
@@ -66,14 +68,9 @@ class Nav extends React.Component {
             <Button variant="raised" className={classes.button} onClick={() => browserHistory.push('/channel')} disabled={!this.props.validLogin && !this.props.validScope}>Channel</Button>
             {
               !this.props.validLogin && !this.props.validScope
-              ? __DEV__
               ? (
                 <Button variant="raised" className={classes.button} onClick={() => {
-                  window.location.href = '/miner/auth/signin?redirect='+encodeURIComponent(window.location.origin)
-                }}>Sign In</Button>
-              ) : (
-                <Button variant="raised" className={classes.button} onClick={() => {
-                  window.location.href = redirect
+                  window.location.href = __DEV__ ? '/miner/auth/signin?redirect='+encodeURIComponent(window.location.origin) : redirect
                 }}>Sign In</Button>
               ) : (
                 <IconButton
@@ -90,18 +87,13 @@ class Nav extends React.Component {
         </Hidden>
         <Hidden mdUp>
           <div>
-            <IconButton color="inherit" onClick={() => browserHistory.push('/')}><i className="material-icons">&#xE88A</i></IconButton>
-            <IconButton color="inherit" onClick={() => browserHistory.push('/channel')} disabled={!this.props.validLogin && !this.props.validScope}><i className="material-icons">&#xE6C4</i></IconButton>
+            <IconButton color="inherit" onClick={() => browserHistory.push('/')}><Home /></IconButton>
+            <IconButton color="inherit" onClick={() => browserHistory.push('/channel')} disabled={!this.props.validLogin && !this.props.validScope}><PieChart /></IconButton>
             {
               !this.props.validLogin && !this.props.validScope
-              ? __DEV__
               ? (
                 <Button size='small' variant="raised" className={classes.button} onClick={() => {
-                  window.location.href = '/miner/auth/signin?redirect='+encodeURIComponent(window.location.origin)
-                }}>Sign In</Button>
-              ) : (
-                <Button size='small' variant="raised" className={classes.button} onClick={() => {
-                  window.location.href = redirect
+                  window.location.href = __DEV__ ? '/miner/auth/signin?redirect='+encodeURIComponent(window.location.origin) : redirect
                 }}>Sign In</Button>
               ) : (
                 <IconButton

@@ -113,22 +113,11 @@ def listChannels(c_filter, c_type, cursor, limit):
                 request_channels = requests.get(host + enpointChannelList + '?' + token + types + limit + nextCursor + exclude_archived)
                 result = request_channels.json()
 
-                if result['ok']:
-                    return Response(
-                        json.dumps(result, indent=4, sort_keys=True),
-                        status=200,
-                        content_type='application/json'
-                    )
-                else:
-                    return Response(
-                        json.dumps({
-                            'data': {
-                                'ok': False
-                            }
-                        }, indent=4, sort_keys=True),
-                        status=200,
-                        content_type='application/json'
-                    )
+                return Response(
+                    json.dumps(result, indent=4, sort_keys=True),
+                    status=200,
+                    content_type='application/json'
+                )
 
             except Exception as e:
                 return Response(
@@ -179,23 +168,11 @@ def fetchChannelInfo(channel_type, c_id):
         try:
             request_info = requests.get(host + enpointChannelList + '.info' + '?' + token + channel_id + '&include_locale=true')
             result = request_info.json()
-            if result['ok']:
-
-                return Response(
-                    json.dumps(result, indent=4, sort_keys=True),
-                    status=200,
-                    content_type='application/json'
-                )
-            else:
-                return Response(
-                    json.dumps({
-                        'data': {
-                            'ok': False
-                        }
-                    }, indent=4, sort_keys=True),
-                    status=200,
-                    content_type='application/json'
-                )
+            return Response(
+                json.dumps(result, indent=4, sort_keys=True),
+                status=200,
+                content_type='application/json'
+            )
         except Exception as e:
             return Response(
                 json.dumps({

@@ -12,11 +12,12 @@ import Button from 'material-ui/Button'
 import Hidden from 'material-ui/Hidden'
 
 import ListChannel from './ListChannel'
+import Loader from '../Loader'
 
 class ChannelFrame extends React.Component {
 
   render () {
-    const { classes, channels, expanded, handleChange, handleMaximize, maximize, type, next, step } = this.props
+    const { classes, channels, expanded, handleChange, handleMaximize, maximize, type, next, step, isLoading } = this.props
     return (
       <ExpansionPanel expanded={expanded} onChange={handleChange}>
         <ExpansionPanelSummary onClick={handleMaximize} expandIcon={<ExpandMoreIcon />}>
@@ -45,7 +46,9 @@ class ChannelFrame extends React.Component {
         <ExpansionPanelDetails>
           <List className={classes.channelList}>
             {
-              channels.length && channels.map((channel, i) => {
+              isLoading
+              ? <Loader loading={true} />
+              : channels.length && channels.map((channel, i) => {
                 return (
                   <ListChannel key={i} type={type} classes={classes} channel={channel} />
                 )
@@ -61,7 +64,10 @@ class ChannelFrame extends React.Component {
               .then(res => {
                 res.map((c, i) => {
                   this.props.fetchChannelInfo(type, c.id)
-                  // .then(res => this.props.collect(res))
+                  // .then(res => {
+                  //   this.props.collect(res)
+                  // })
+                  this.props.collect(c)
                 })
               })
               .catch(err => {

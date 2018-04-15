@@ -6,6 +6,7 @@ import IconButton from 'material-ui/IconButton'
 import Button from 'material-ui/Button'
 import Divider from 'material-ui/Divider'
 import Hidden from 'material-ui/Hidden'
+import CloudDownload from '@material-ui/icons/CloudDownload'
 
 import ChannelFrame from './ChannelFrame'
 
@@ -14,7 +15,10 @@ import './Channels.scss'
 import {
   fetchChannelLists,
   fetchChannelInfo,
-  collect
+  collect,
+  startLoading,
+  finishLoading,
+  failedLoading
 } from '../../store/channel'
 
 
@@ -26,6 +30,7 @@ const styles = theme => ({
     maxHeight: 450,
     overflowX: 'hidden',
     overflowY: 'auto',
+    width: '100%',
     backgroundColor: '#EEE'
   },
   button: {
@@ -40,8 +45,16 @@ class Channels extends React.Component {
 
   componentWillReceiveProps (nextProps) {
     if (nextProps.validScope !== this.props.validScope) {
-      this.fetchChannels(true)
+      this.fetchChannels(true, '99')
     }
+
+    // if (nextProps.nextPublic !== this.props.nextPublic) {
+    //   this.fetchChannel('public', nextProps.nextPublic, '50', false)
+    // }
+    //
+    // if (nextProps.nextPrivate !== this.props.nextPrivate) {
+    //   this.fetchChannel('private', nextProps.nextPrivate, '50', false)
+    // }
   }
 
   handleChange = panel => (event, expanded) => {
@@ -50,33 +63,32 @@ class Channels extends React.Component {
     })
   }
 
-  handleCollect = (data) => {
-    // this.props.collect(data)
+  fetchChannel = async (type, next, limit, firstFetch) => {
+    if (firstFetch) {
+      next = null
+    }
+
+    this.props.startLoading()
+    try {
+      const lists = await this.props.fetchChannelLists(type, 'all', next, limit, firstFetch)
+      lists.map((c, i) => {
+        this.props.fetchChannelInfo(type, c.id)
+        // .then(info => {
+        //   this.props.collect(info)
+        // })
+        this.props.collect(c)
+      })
+      this.props.finishLoading()
+    } catch (e) {
+      console.error(e)
+      this.props.failedLoading()
+    }
   }
 
-  fetchChannels = (firstFetch) => {
-    this.props.fetchChannelLists('public', 'all', this.props.nextPublic, '100', firstFetch)
-    .then(res => {
-      res.map((c, i) => {
-        this.props.fetchChannelInfo('public', c.id)
-        // .then(res => this.props.collect(res))
-      })
-    })
-    .catch(err => {
-      console.error(err)
-    })
+  fetchChannels = async (firstFetch, limit) => {
+    await this.fetchChannel('public', this.props.nextPublic, limit, firstFetch)
 
-    this.props.fetchChannelLists('private', 'all', this.props.nextPrivate, '10', firstFetch)
-    .then(res => {
-      res.map((c, i) => {
-        this.props.fetchChannelInfo('private', c.id)
-        // .then(res => this.props.collect(res))
-      })
-    })
-    .catch(err => {
-      console.error(err)
-    })
-
+    await this.fetchChannel('private', this.props.nextPrivate, limit, firstFetch)
   }
 
   render () {
@@ -87,26 +99,30 @@ class Channels extends React.Component {
           classes={classes}
           channels={this.props.channelsPublic}
           next={this.props.nextPublic}
-          step='25'
+          step='99'
           maximize={this.props.maximize}
           handleMaximize={this.props.handleMaximize}
           expanded={this.state.expanded === 'public' && this.props.maximize}
           handleChange={this.handleChange('public')}
           fetchChannelLists={this.props.fetchChannelLists}
           fetchChannelInfo={this.props.fetchChannelInfo}
+          collect={this.props.collect}
+          isLoading={this.props.isLoading}
           type='public' />
         <Divider />
         <ChannelFrame
           classes={classes}
           channels={this.props.channelsPrivate}
           next={this.props.nextPrivate}
-          step='25'
+          step='99'
           maximize={this.props.maximize}
           handleMaximize={this.props.handleMaximize}
           expanded={this.state.expanded === 'private' && this.props.maximize}
           handleChange={this.handleChange('private')}
           fetchChannelLists={this.props.fetchChannelLists}
           fetchChannelInfo={this.props.fetchChannelInfo}
+          collect={this.props.collect}
+          isLoading={this.props.isLoading}
           type='private' />
         <Divider />
         <Hidden mdUp>
@@ -114,8 +130,8 @@ class Channels extends React.Component {
             className={classes.button}
             disabled={(!this.props.validLogin && !this.props.validScope) || this.props.isLoading}
             color="primary"
-            onClick={() => this.fetchChannels(false)}>
-            <i className="material-icons">&#xE2C0</i>
+            onClick={() => this.fetchChannels(false, '99')}>
+            <CloudDownload />
           </IconButton>
         </Hidden>
         <Hidden smDown>
@@ -126,7 +142,7 @@ class Channels extends React.Component {
                 className={classes.button}
                 disabled={(!this.props.validLogin && !this.props.validScope) || this.props.isLoading}
                 variant="raised" color="primary"
-                onClick={() => this.fetchChannels(false)}>
+                onClick={() => this.fetchChannels(false, '99')}>
                 Fetch Channels
               </Button>
             ) : (
@@ -134,8 +150,8 @@ class Channels extends React.Component {
                 className={classes.button}
                 disabled={(!this.props.validLogin && !this.props.validScope) || this.props.isLoading}
                 color="primary"
-                onClick={() => this.fetchChannels(false)}>
-                <i className="material-icons">&#xE2C0</i>
+                onClick={() => this.fetchChannels(false, '99')}>
+                <CloudDownload />
               </IconButton>
             )
           }
@@ -145,7 +161,7 @@ class Channels extends React.Component {
           fullWidth
           disabled={!this.props.channelsPublic.length || this.props.isLoading}
           variant="raised" color="secondary"
-          onClick={() => this.handleCollect(this.props.channelsPublic)}>
+          onClick={() => this.props.collect(this.props.channelsPublic)}>
           Collect Public Channels
         </Button>
         <Divider />
@@ -153,7 +169,7 @@ class Channels extends React.Component {
           fullWidth
           disabled={!this.props.channelsPrivate.length || this.props.isLoading}
           variant="raised" color="secondary"
-          onClick={() => this.handleCollect(this.props.channelsPrivate)}>
+          onClick={() => this.props.collect(this.props.channelsPrivate)}>
           Collect Private Channels
         </Button>*/}
 
@@ -176,7 +192,10 @@ const matchDispatchToProps = dispatch => {
   const actions = {
     fetchChannelLists,
     fetchChannelInfo,
-    // collect
+    collect,
+    startLoading,
+    finishLoading,
+    failedLoading
   }
   return bindActionCreators(actions, dispatch)
 }

@@ -25,7 +25,11 @@ const channelSchema = mongoose.Schema({
    topic: mongoose.Schema.Types.Mixed,
    unlinked: Number,
    unread_count: Number,
-   unread_count_display: Number
+   unread_count_display: Number,
+   updated: {
+     type: Date,
+     default: Date.now()
+   }
 });
 channelSchema.plugin(uniqueValidator)
 const Channel = mongoose.model('Channel', channelSchema);

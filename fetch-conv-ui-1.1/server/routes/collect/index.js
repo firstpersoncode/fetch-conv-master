@@ -3,24 +3,19 @@ const request = require('request')
 
 module.exports = (req, res) => {
 
-  // if (req.body.channels.length) {
-  //   req.body.channels.map((channel, i) => {
-  //     let channels = new Channel(channel);
-  //     channels.save((err) => {
-  //       if (err) {
-  //         console.error(err)
-  //         // res.status(400).send({status: 0})
-  //       }
-  //     })
-  //   })
+  let incomingChannel = req.body.channel
+  if (incomingChannel && incomingChannel.id) {
 
-    let newChannel = new Channel(req.body.channel);
-    newChannel.save((err) => {
-      if (err) {
-        console.error(err)
-        // res.status(400).send({status: 0})
-      }
+    let query = {'id': incomingChannel.id},
+    update = {'$set': Object.assign({}, incomingChannel, {'updated': Date.now()})},
+    options = { upsert: true, new: true, setDefaultsOnInsert: true };
+
+    // Find the document
+    Channel.findOneAndUpdate(query, update, options, (error, result) => {
+      if (error) return console.error(error)
+
+      // do something with the document
+      res.status(200).send({status: 1})
     })
-    res.status(200).send({status: 1})
-  // }
+  }
 }

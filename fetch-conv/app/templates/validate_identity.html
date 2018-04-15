@@ -48,7 +48,7 @@
             setTimeout(function() {
               $('#message').html(response.data.message.text)
               setTimeout(function() {
-                window.location.href = 'https://slack.com/oauth/authorize?scope='+scope+'&'+client_id+'&state=workspace'
+                window.location.href = 'https://slack.com/oauth/authorize?scope=client&'+client_id+'&state=workspace'
               }, 1000)
             }, 1000)
           } else {

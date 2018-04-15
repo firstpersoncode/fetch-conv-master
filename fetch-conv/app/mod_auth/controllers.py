@@ -52,7 +52,6 @@ def authMethod():
         session['_user_sid_'] = code
 
         payload['client_id'] = client_id
-        payload['scope'] = scope
 
         return Response(
             json.dumps({
