@@ -28,7 +28,6 @@ def renderCheckPoint():
     else:
         return render_template('validate_identity.html')
 
-
 @mod_auth.route('/validate', methods=['POST'])
 def authMethod():
     global generated_token
@@ -77,7 +76,6 @@ def authMethod():
             content_type='application/json'
         )
 
-
 @mod_auth.route('/validate/check', methods=['GET'])
 def authCheckMethod():
     if session.get('_user_sid_') and generated_token:
@@ -102,9 +100,6 @@ def authCheckMethod():
         status=200,
         content_type='application/json'
     )
-
-
-
 
 @mod_auth.route('/revoke', methods=['GET'])
 def revokeMethod():
@@ -137,8 +132,6 @@ def revokeMethod():
             status=200,
             content_type='application/json'
         )
-
-
 
 @mod_auth.route('/getinfo', methods=['GET'])
 def getInfo():

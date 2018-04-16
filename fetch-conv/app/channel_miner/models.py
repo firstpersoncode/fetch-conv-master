@@ -12,17 +12,37 @@ class Channel:
         # sorted(list(self.collection.index_information()))
 
     def addChannel(self, data):
-        self.collection.insert_one(data)
+        self.collection.find_one_and_update({
+            'id': data['id']
+        }, {
+          '$set': {
+            'detail': data,
+            'updated': datetime.datetime.utcnow()
+          }
+        }, upsert=True, new=True)
 
-    def addInfo(self, c_id, info):
-        self.collection.find_one_and_update({'id': c_id}, {
-            '$set': { 'info': info }
-        })
+    # def addInfo(self, data):
+    #     self.collection.find_one_and_update({'id': c_id}, {
+    #         '$set': { 'info': info }
+    #     })
 
     def addMessages(self, c_id, data):
-        self.collection.find_one_and_update({'id': c_id}, {
-            '$addToSet': { 'histories': { '$each': data } }
-        })
+        self.collection.find_one_and_update({
+            'id': c_id
+        }, {
+            '$addToSet': {
+                'messages': { '$each': data }
+            }
+        }, upsert=True, new=True)
 
-    def getChannel(self, c_id):
-        return self.collection.find_one({'id': c_id})
+    def addPins(self, c_id, data):
+        self.collection.find_one_and_update({
+            'id': c_id
+        }, {
+            '$addToSet': {
+                'pins': { '$each': data }
+            }
+        }, upsert=True, new=True)
+
+    # def getChannel(self, c_id):
+    #     return self.collection.find_one({'id': c_id})

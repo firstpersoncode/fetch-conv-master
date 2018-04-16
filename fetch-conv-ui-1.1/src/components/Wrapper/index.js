@@ -25,8 +25,6 @@ import {
 } from '../../store/user'
 
 import {
-  // connectRTM,
-  // startRTM,
   statusCheck as statusCheckScope
 } from '../../store/channel'
 
@@ -44,7 +42,7 @@ const styles = theme => ({
   appBar: {
     // zIndex: theme.zIndex.drawer + 1,
     marginLeft: 100,
-    width: `calc(100% - 100px)`,
+    width: `calc(100% - 150px)`,
     transition: theme.transitions.create(['width', 'margin'], {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
@@ -99,7 +97,7 @@ const styles = theme => ({
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.leavingScreen,
     }),
-    width: 100,
+    width: 150,
   },
   toolbar: {
     display: 'flex',
@@ -120,12 +118,9 @@ const styles = theme => ({
 
 
 class WrapperLayout extends React.Component {
-  constructor () {
-    super()
-    this.state = {
-      mobileOpen: false,
-      maximize: false
-    }
+  state = {
+    mobileOpen: false,
+    maximize: false
   }
 
   componentWillMount () {
@@ -239,8 +234,6 @@ const matchDispatchToProps = dispatch => {
   const actions = {
     getInfo,
     statusCheckLogin,
-    // connectRTM,
-    // startRTM,
     statusCheckScope
   }
   return bindActionCreators(actions, dispatch)

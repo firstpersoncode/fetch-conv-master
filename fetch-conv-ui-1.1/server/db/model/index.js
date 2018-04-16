@@ -1,3 +1,4 @@
 module.exports = {
-  Channel: require('./channelSchema')
+  Channel: require('./channelSchema'),
+  Message: require('./messageSchema')
 };

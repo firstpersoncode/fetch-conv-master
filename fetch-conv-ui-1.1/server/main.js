@@ -12,7 +12,7 @@ const proxy = require('http-proxy-middleware')
 const db = require('./db')
 const session = require('client-sessions')
 
-const { collect, mod_auth, channel_miner } = require('./routes')
+const { collect, queryCollect, mod_auth, channel_miner } = require('./routes')
 
 const app = express()
 app.use(session({
@@ -39,7 +39,10 @@ db('mongodb://localhost/fetch-conv')
 //   prependPath: false
 // }))
 
-app.post('/api/collect', collect)
+app.post('/api/collect', collect.channel)
+app.post('/api/collect/message', collect.message)
+
+app.post('/api/query', queryCollect.channel)
 
 // ------------------------------------
 // Apply Webpack HMR Middleware

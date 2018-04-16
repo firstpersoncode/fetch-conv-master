@@ -136,6 +136,7 @@ const initialState = {
   isLoading: false,
   error: null
 }
+
 export default function userReducer (state = initialState, action) {
   const immutable = immutee(state);
   switch (action.type) {

@@ -60,9 +60,10 @@ class Channel extends React.Component {
 
   initialChannel = (props) => {
     const channel = this.mapRenderChannelDetail(props.params.type, props.params.idRoom)
-    this.props.openChat(channel, props.params.idRoom, null, 15, false)
-    this.props.openMember(props.params.idRoom, null, 1000, false)
-    this.props.openPins(props.params.idRoom)
+    this.props.setChannelOpened(channel)
+    this.props.openChat(channel, props.params.idRoom, null, 1000, false)
+    this.props.openMember(channel, props.params.idRoom, null, 1000, false)
+    this.props.openPins(channel, props.params.idRoom)
   }
 
   handleChange = (event, value) => {
@@ -125,8 +126,11 @@ class Channel extends React.Component {
                   }
                 </code>
               </pre>
-              <Button onClick={() => this.props.openChat({}, this.props.params.idRoom, this.props.nextMessage, 15, true)} variant="raised" color="primary">
+              <Button disabled={!this.props.nextMessage} onClick={() => this.props.openChat(this.props.channelOpened, this.props.params.idRoom, this.props.nextMessage, 15, true)} variant="raised" color="primary">
                 More Message
+              </Button>
+              <Button disabled={!this.props.nextMessage} onClick={() => this.props.collect(this.props.messages, 'message')} variant="raised" color="primary">
+                Collect Message
               </Button>
             </Paper>
             <Paper className={classes.preContainer} elevation={4}>
@@ -138,7 +142,7 @@ class Channel extends React.Component {
                   }
                 </code>
               </pre>
-              <Button onClick={() => this.props.openMember(this.props.params.idRoom, this.props.nextMember, 15, true)} variant="raised" color="primary">
+              <Button onClick={() => this.props.openMember(this.props.channelOpened, this.props.params.idRoom, this.props.nextMember, 15, true)} variant="raised" color="primary">
                 More Members
               </Button>
             </Paper>
@@ -148,16 +152,6 @@ class Channel extends React.Component {
                 <code>
                   {
                     JSON.stringify(this.props.pins, null, '\t')
-                  }
-                </code>
-              </pre>
-            </Paper>
-            <Paper className={classes.preContainer} elevation={4}>
-              <pre>
-                # Mapping from channel reducer
-                <code>
-                  {
-                    JSON.stringify(this.mapRenderChannelDetail(this.props.params.type, this.props.params.idRoom), null, '\t')
                   }
                 </code>
               </pre>

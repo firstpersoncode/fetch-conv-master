@@ -39,7 +39,6 @@ export function failedLoading () {
   }
 }
 
-
 export function validate (code) {
   return (dispatch) => {
     dispatch({
@@ -66,32 +65,32 @@ export function validate (code) {
   }
 }
 
-
 export function fetchChannelLists(type, c_filter, cursor, limit, firstFetch) {
   let next = cursor && cursor.replace('=', '%3D') || ''
   return (dispatch, getState) => {
     return axios.get(miner_endpoint + '/channels/list' + '/' + c_filter + '/' + type + (next ? '/' + next : (firstFetch ? '/first' : '/end')) + '/' + limit)
     .then(res => {
-      if (res.data.ok) {
-        switch (type) {
-          case 'private':
-            dispatch({
-              type: FETCH_CHANNEL_PRIVATE,
-              payload: res.data.channels,
-              next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-            })
-          break;
-          default:
-            dispatch({
-              type: FETCH_CHANNEL_PUBLIC,
-              payload: res.data.channels,
-              next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-            })
-        }
-        return res.data.channels
-      } else {
-        throw new Error('Failed set channels: ' + type + ' ' + res)
-      }
+      // if (res.data.ok) {
+      //   switch (type) {
+      //     case 'private':
+      //       dispatch({
+      //         type: FETCH_CHANNEL_PRIVATE,
+      //         payload: res.data.channels,
+      //         next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
+      //       })
+      //     break;
+      //     default:
+      //       dispatch({
+      //         type: FETCH_CHANNEL_PUBLIC,
+      //         payload: res.data.channels,
+      //         next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
+      //       })
+      //   }
+      //   return res.data.channels
+      // } else {
+      //   throw new Error('Failed set channels: ' + type + ' ' + JSON.stringify(res, null, '\t'))
+      // }
+      return res.data.channels
     })
     .catch(err => {
       console.error(err)
@@ -120,26 +119,7 @@ export function fetchChannelInfo (type, id) {
         }
 
       } else {
-        throw new Error('Failed set info: ' + type + ' ' + res)
-      }
-    })
-    .catch(err => {
-      console.error(err)
-    })
-  }
-}
-
-export function collect (channel) {
-  return (dispatch) => {
-    return axios.post('http://localhost:6501/api/collect', {
-      channel
-    })
-    .then(res => {
-      if (res.data.status) {
-        // console.log('Success add channel to db')
-        return res.data.status
-      } else {
-        throw new Error('Failed add channel to db: ' + res)
+        throw new Error('Failed set info: ' + type + ' ' + JSON.stringify(res, null, '\t'))
       }
     })
     .catch(err => {
@@ -227,27 +207,27 @@ export default function channelReducer (state = initialState, action) {
       .set('error', true)
       .done()
 
-    case FETCH_CHANNEL_PUBLIC:
-      return immutable
-      // .merge('channels.public', action.payload)
-      .set('next.public', action.next)
-      .done();
+    // case FETCH_CHANNEL_PUBLIC:
+    //   return immutable
+    //   .merge('channels.public', action.payload)
+    //   .set('next.public', action.next)
+    //   .done();
+    //
+    // case FETCH_CHANNEL_PRIVATE:
+    //   return immutable
+    //   .merge('channels.private', action.payload)
+    //   .set('next.private', action.next)
+    //   .done();
 
-    case FETCH_CHANNEL_PRIVATE:
-      return immutable
-      // .merge('channels.private', action.payload)
-      .set('next.private', action.next)
-      .done();
-
-    case FETCH_INFO_PUBLIC:
-      return immutable
-      .merge('channels.public', [action.payload])
-      .done();
-
-    case FETCH_INFO_PRIVATE:
-      return immutable
-      .merge('channels.private', [action.payload])
-      .done();
+    // case FETCH_INFO_PUBLIC:
+    //   return immutable
+    //   .merge('channels.public', [action.payload])
+    //   .done();
+    //
+    // case FETCH_INFO_PRIVATE:
+    //   return immutable
+    //   .merge('channels.private', [action.payload])
+    //   .done();
 
     default:
       return state;

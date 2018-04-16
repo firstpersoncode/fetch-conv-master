@@ -1,5 +1,6 @@
 import { connect } from 'react-redux'
-import { openChat, openMember, openPins } from '../modules/channelDetail'
+import { openChat, openMember, openPins, setChannelOpened } from '../modules/channelDetail'
+import { collect } from '../../../store/microdb/channel'
 /*  This is a container component. Notice it does not contain any JSX,
     nor does it import React. This component is **only** responsible for
     wiring in the actions and state necessary to render a presentational
@@ -14,7 +15,9 @@ import Channel from '../components/Channel'
 const mapDispatchToProps = {
   openChat,
   openMember,
-  openPins
+  openPins,
+  setChannelOpened,
+  collect
 }
 
 const mapStateToProps = (state) => ({

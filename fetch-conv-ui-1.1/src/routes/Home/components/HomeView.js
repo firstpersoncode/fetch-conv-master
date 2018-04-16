@@ -15,15 +15,4 @@ class HomeView extends React.Component {
   }
 }
 
-// '/api/channels/<string:channel_id>/<string:cursor>/<string:limit>'
-
-const mapStateToProps = (state) => ({
-})
-
-const matchDispatchToProps = dispatch => {
-  const actions = {
-  }
-  return bindActionCreators(actions, dispatch);
-};
-
-export default connect(mapStateToProps, matchDispatchToProps)(HomeView)
+export default HomeView
