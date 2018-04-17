@@ -19,7 +19,8 @@ import {
   fetchChannelInfo,
   startLoading,
   finishLoading,
-  failedLoading
+  failedLoading,
+  fetchUsersList
 } from '../../store/channel'
 
 import {
@@ -97,6 +98,10 @@ class Channels extends React.Component {
     await this.fetchChannel('private', this.props.nextPrivate, limit, firstFetch)
   }
 
+  fetchUsers = () => {
+    this.props.fetchUsersList()
+  }
+
   render () {
     const {classes} = this.props
     return (
@@ -135,31 +140,15 @@ class Channels extends React.Component {
           }}>
           Fetch Channels
         </Button>
-        <Divider />
         <Button
           className={classes.button}
-          disabled={!this.props.channelsPublic.length || this.props.isLoading}
-          variant="raised" color="secondary"
+          disabled={(!this.props.validLogin && !this.props.validScope) || this.props.isLoading}
+          variant="raised" color="primary"
           onClick={() => {
-            this.props.channelsPublic.map(info => {
-              this.props.collect(info)
-            })
+            this.fetchUsers()
           }}>
-          Manual Collect Public Channels
+          Fetch Users
         </Button>
-        <Divider />
-        <Button
-          className={classes.button}
-          disabled={!this.props.channelsPrivate.length || this.props.isLoading}
-          variant="raised" color="secondary"
-          onClick={() => {
-            this.props.channelsPrivate.map(info => {
-              this.props.collect(info)
-            })
-          }}>
-          Manual Collect Private Channels
-        </Button>
-
       </div>
     )
   }
@@ -172,8 +161,7 @@ const mapStateToProps = (state) => ({
   nextPrivate: state.channel.next.private,
   isLoading: state.channel.isLoading,
   validLogin: state.user.valid,
-  validScope: state.channel.valid,
-  bulkNextMessage: state.channelDetail.bulkNextMessage
+  validScope: state.channel.valid
 })
 
 const matchDispatchToProps = dispatch => {
@@ -185,7 +173,8 @@ const matchDispatchToProps = dispatch => {
     failedLoading,
     openChat,
     collect,
-    fetchChannelDB
+    fetchChannelDB,
+    fetchUsersList
   }
   return bindActionCreators(actions, dispatch)
 }

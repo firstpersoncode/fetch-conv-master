@@ -128,6 +128,36 @@ export function fetchChannelInfo (type, id) {
   }
 }
 
+export function fetchUsersList () {
+  return (dispatch) => {
+    return axios.get(miner_endpoint + '/channels/users')
+    .then(res => {
+      // if (res.data.ok) {
+      //   switch (type) {
+      //     case 'private':
+      //       dispatch({
+      //         type: FETCH_INFO_PRIVATE,
+      //         payload: res.data.group
+      //       })
+      //       return res.data.group
+      //     default:
+      //       dispatch({
+      //         type: FETCH_INFO_PUBLIC,
+      //         payload: res.data.channel
+      //       })
+      //       return res.data.channel
+      //   }
+      //
+      // } else {
+      //   throw new Error('Failed set info: ' + type + ' ' + JSON.stringify(res, null, '\t'))
+      // }
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  }
+}
+
 export function statusCheck () {
   return (dispatch) => {
     dispatch({

@@ -21,15 +21,36 @@ class Channel:
           }
         }, upsert=True, new=True)
 
-    # def addInfo(self, data):
-    #     self.collection.find_one_and_update({'id': c_id}, {
-    #         '$set': { 'info': info }
-    #     })
-
-    def addMessages(self, c_id, data):
+    def addMembers(self, c_id, data):
         self.collection.find_one_and_update({
             'id': c_id
         }, {
+          '$set': {
+            'updated': datetime.datetime.utcnow()
+          },
+          '$addToSet': {
+            'detail.members': { '$each': data },
+          }
+        }, upsert=True, new=True)
+
+    def addUsers(self, data):
+        self.collection.find_one_and_update({
+            'id': data['id']
+        }, {
+          '$set': {
+            'detail': data,
+            'updated': datetime.datetime.utcnow()
+          }
+        }, upsert=True, new=True)
+
+    def addMessages(self, c_id, data, lastCursor):
+        self.collection.find_one_and_update({
+            'id': c_id
+        }, {
+            '$set': {
+              'updated': datetime.datetime.utcnow(),
+              'last_cursor': lastCursor
+            },
             '$addToSet': {
                 'messages': { '$each': data }
             }
@@ -39,10 +60,19 @@ class Channel:
         self.collection.find_one_and_update({
             'id': c_id
         }, {
+            '$set': {
+              'updated': datetime.datetime.utcnow()
+            },
             '$addToSet': {
                 'pins': { '$each': data }
             }
         }, upsert=True, new=True)
 
-    # def getChannel(self, c_id):
-    #     return self.collection.find_one({'id': c_id})
+    def getChannelById(self, c_id):
+        return self.collection.find_one({'id': c_id})
+
+    def getMessageById(self, c_id):
+        return self.collection.find_one({'id': c_id})
+
+    def getChannels(self):
+        return self.collection.find_one({})
