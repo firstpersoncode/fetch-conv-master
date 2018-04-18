@@ -9,6 +9,7 @@ import Button from 'material-ui/Button'
 import AccountCircle from '@material-ui/icons/AccountCircle'
 import Home from '@material-ui/icons/Home'
 import PieChart from '@material-ui/icons/PieChart'
+import Dashboard from '@material-ui/icons/Dashboard'
 import Hidden from 'material-ui/Hidden'
 
 import './Nav.scss'
@@ -66,6 +67,7 @@ class Nav extends React.Component {
           <div>
             <Button variant="raised" className={classes.button} onClick={() => browserHistory.push('/')}>Home</Button>
             <Button variant="raised" className={classes.button} onClick={() => browserHistory.push('/channel')} disabled={!this.props.validLogin && !this.props.validScope}>Channel</Button>
+            <Button variant="raised" className={classes.button} onClick={() => browserHistory.push('/dashboard')} disabled={!this.props.validLogin && !this.props.validScope}>Dashboard</Button>
             {
               !this.props.validLogin && !this.props.validScope
               ? (
@@ -89,6 +91,7 @@ class Nav extends React.Component {
           <div>
             <IconButton color="inherit" onClick={() => browserHistory.push('/')}><Home /></IconButton>
             <IconButton color="inherit" onClick={() => browserHistory.push('/channel')} disabled={!this.props.validLogin && !this.props.validScope}><PieChart /></IconButton>
+            <IconButton color="inherit" onClick={() => browserHistory.push('/dashboard')} disabled={!this.props.validLogin && !this.props.validScope}><Dashboard /></IconButton>
             {
               !this.props.validLogin && !this.props.validScope
               ? (

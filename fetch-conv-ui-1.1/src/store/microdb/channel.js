@@ -5,19 +5,19 @@ import {
   miner_endpoint_db
 } from '../../constants'
 
-export const VALIDATE_START = 'channel/VALIDATE/CHANNELS/START'
-export const VALIDATE_SUCCESS = 'channel/VALIDATE/CHANNELS/SUCCESS'
-export const VALIDATE_FAILED = 'channel/VALIDATE/CHANNELS/FAILED'
+export const VALIDATE_START = 'micro/channel/VALIDATE/CHANNELS/START'
+export const VALIDATE_SUCCESS = 'micro/channel/VALIDATE/CHANNELS/SUCCESS'
+export const VALIDATE_FAILED = 'micro/channel/VALIDATE/CHANNELS/FAILED'
 
-export const FETCH_START = 'channel/FETCH/CHANNELS/START'
-export const FETCH_SUCCESS = 'channel/FETCH/CHANNELS/SUCCESS'
-export const FETCH_FAILED = 'channel/FETCH/CHANNELS/FAILED'
+export const FETCH_START = 'micro/channel/FETCH/CHANNELS/START'
+export const FETCH_SUCCESS = 'micro/channel/FETCH/CHANNELS/SUCCESS'
+export const FETCH_FAILED = 'micro/channel/FETCH/CHANNELS/FAILED'
 
-export const FETCH_CHANNEL_PUBLIC = 'channel/FETCH/CHANNELS/PUBLIC'
-export const FETCH_CHANNEL_PRIVATE = 'channel/FETCH/CHANNELS/PRIVATE'
+export const FETCH_CHANNEL_PUBLIC = 'micro/channel/FETCH/CHANNELS/PUBLIC'
+export const FETCH_CHANNEL_PRIVATE = 'micro/channel/FETCH/CHANNELS/PRIVATE'
 
-export const FETCH_INFO_PUBLIC = 'channel/FETCH/INFO/PUBLIC'
-export const FETCH_INFO_PRIVATE = 'channel/FETCH/INFO/PRIVATE'
+export const FETCH_INFO_PUBLIC = 'micro/channel/FETCH/INFO/PUBLIC'
+export const FETCH_INFO_PRIVATE = 'micro/channel/FETCH/INFO/PRIVATE'
 
 
 export function startLoading () {
@@ -71,7 +71,6 @@ export function collect (data, endpoint) {
     })
     .then(res => {
       if (res.data.status) {
-        // console.log('Success add channel to db')
         return res.data.status
       } else {
         throw new Error('Failed add channel to db: ' + JSON.stringify(res, null, '\t'))
@@ -84,15 +83,14 @@ export function collect (data, endpoint) {
 }
 
 const initialState = {
-  // valid: false,
   channels: {
     public: [],
     private: []
   },
-  // next: {
-  //   public: '',
-  //   private: ''
-  // },
+  next: {
+    public: '',
+    private: ''
+  },
   isLoading: false,
   error: null
 };
@@ -120,12 +118,12 @@ export default function channelDBReducer (state = initialState, action) {
 
     case FETCH_INFO_PUBLIC:
       return immutable
-      .merge('channels.public', [action.payload])
+      .set('channels.public', action.payload)
       .done();
 
     case FETCH_INFO_PRIVATE:
       return immutable
-      .merge('channels.private', [action.payload])
+      .set('channels.private', action.payload)
       .done();
 
     default:

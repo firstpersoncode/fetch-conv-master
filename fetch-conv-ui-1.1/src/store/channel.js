@@ -70,26 +70,6 @@ export function fetchChannelLists(type, c_filter, cursor, limit, firstFetch) {
   return (dispatch, getState) => {
     return axios.get(miner_endpoint + '/channels/list' + '/' + c_filter + '/' + type + (next ? '/' + next : (firstFetch ? '/first' : '/end')) + '/' + limit)
     .then(res => {
-      // if (res.data.ok) {
-      //   switch (type) {
-      //     case 'private':
-      //       dispatch({
-      //         type: FETCH_CHANNEL_PRIVATE,
-      //         payload: res.data.channels,
-      //         next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-      //       })
-      //     break;
-      //     default:
-      //       dispatch({
-      //         type: FETCH_CHANNEL_PUBLIC,
-      //         payload: res.data.channels,
-      //         next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-      //       })
-      //   }
-      //   return res.data.channels
-      // } else {
-      //   throw new Error('Failed set channels: ' + type + ' ' + JSON.stringify(res, null, '\t'))
-      // }
       return res.data.channels
     })
     .catch(err => {
@@ -102,25 +82,7 @@ export function fetchChannelInfo (type, id) {
   return (dispatch) => {
     return axios.get(miner_endpoint + '/channels/info' + '/' + type + '/' + id)
     .then(res => {
-      if (res.data.ok) {
-        switch (type) {
-          case 'private':
-            dispatch({
-              type: FETCH_INFO_PRIVATE,
-              payload: res.data.group
-            })
-            return res.data.group
-          default:
-            dispatch({
-              type: FETCH_INFO_PUBLIC,
-              payload: res.data.channel
-            })
-            return res.data.channel
-        }
-
-      } else {
-        throw new Error('Failed set info: ' + type + ' ' + JSON.stringify(res, null, '\t'))
-      }
+      return res.data.channel
     })
     .catch(err => {
       console.error(err)
@@ -132,25 +94,7 @@ export function fetchUsersList () {
   return (dispatch) => {
     return axios.get(miner_endpoint + '/channels/users')
     .then(res => {
-      // if (res.data.ok) {
-      //   switch (type) {
-      //     case 'private':
-      //       dispatch({
-      //         type: FETCH_INFO_PRIVATE,
-      //         payload: res.data.group
-      //       })
-      //       return res.data.group
-      //     default:
-      //       dispatch({
-      //         type: FETCH_INFO_PUBLIC,
-      //         payload: res.data.channel
-      //       })
-      //       return res.data.channel
-      //   }
-      //
-      // } else {
-      //   throw new Error('Failed set info: ' + type + ' ' + JSON.stringify(res, null, '\t'))
-      // }
+      return res.data.members
     })
     .catch(err => {
       console.error(err)
@@ -185,14 +129,6 @@ export function statusCheck () {
 
 const initialState = {
   valid: false,
-  channels: {
-    public: [],
-    private: []
-  },
-  next: {
-    public: '',
-    private: ''
-  },
   isLoading: false,
   error: null
 };
@@ -236,28 +172,6 @@ export default function channelReducer (state = initialState, action) {
       .set('isLoading', false)
       .set('error', true)
       .done()
-
-    // case FETCH_CHANNEL_PUBLIC:
-    //   return immutable
-    //   .merge('channels.public', action.payload)
-    //   .set('next.public', action.next)
-    //   .done();
-    //
-    // case FETCH_CHANNEL_PRIVATE:
-    //   return immutable
-    //   .merge('channels.private', action.payload)
-    //   .set('next.private', action.next)
-    //   .done();
-
-    // case FETCH_INFO_PUBLIC:
-    //   return immutable
-    //   .merge('channels.public', [action.payload])
-    //   .done();
-    //
-    // case FETCH_INFO_PRIVATE:
-    //   return immutable
-    //   .merge('channels.private', [action.payload])
-    //   .done();
 
     default:
       return state;

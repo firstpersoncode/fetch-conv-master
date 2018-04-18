@@ -19,6 +19,8 @@ client_id = 'client_id=' + generated_client_id
 client_secret = 'client_secret=' + generated_client_secret
 
 # SET UP DB
+# client = MongoClient("mongodb://kay:myRealPassword@mycluster0-shard-00-00.mongodb.net:27017,mycluster0-shard-00-01.mongodb.net:27017,mycluster0-shard-00-02.mongodb.net:27017/admin?ssl=true&replicaSet=Mycluster0-shard-0&authSource=admin")
+# db = client.test
 client = MongoClient('mongodb://localhost:27017/')
 db = client['fetch-conv']
 

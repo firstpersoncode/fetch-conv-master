@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 import { connect } from 'react-redux'
 import { bindActionCreators, compose } from 'redux'
 import { withStyles } from 'material-ui/styles'
@@ -14,6 +15,8 @@ import Debug from '../Debug'
 
 import './Channels.scss'
 
+import { miner_endpoint } from '../../constants'
+
 import {
   fetchChannelLists,
   fetchChannelInfo,
@@ -27,10 +30,6 @@ import {
   fetchChannel as fetchChannelDB,
   collect
 } from '../../store/microdb/channel'
-
-import {
-  openChat
-} from '../../routes/Channel/modules/channelDetail'
 
 
 const styles = theme => ({
@@ -64,27 +63,9 @@ class Channels extends React.Component {
     if (firstFetch) {
       next = null
     }
-
     this.props.startLoading()
     try {
       await this.props.fetchChannelLists(type, 'all', next, limit, firstFetch)
-      // const lists = await this.props.fetchChannelLists(type, 'all', next, limit, firstFetch)
-
-      // lists.map((c, i) => {
-      //   this.props.collect(c)
-      // })
-
-      // lists.map((c, i) => {
-      //   setTimeout(() => this.props.fetchChannelInfo(type, c.id)
-      //   .then(info => {
-      //     this.props.collect(info)
-      //   }), 1000)
-      // })
-
-      // lists.map((c, i) => {
-      //   setTimeout(() => this.props.openChat(c, c.id, null, '1000', false), 1000)
-      // })
-
       this.props.finishLoading()
     } catch (e) {
       console.error(e)
@@ -94,19 +75,35 @@ class Channels extends React.Component {
 
   fetchChannels = async (firstFetch, limit) => {
     await this.fetchChannel('public', this.props.nextPublic, limit, firstFetch)
-
     await this.fetchChannel('private', this.props.nextPrivate, limit, firstFetch)
   }
 
-  fetchUsers = () => {
-    this.props.fetchUsersList()
+  fetchUsers = async () => {
+    this.props.startLoading()
+    try {
+      await this.props.fetchUsersList()
+      this.props.finishLoading()
+    } catch (e) {
+      console.error(e)
+      this.props.failedLoading()
+    }
+  }
+
+  updateDB = async (v) => {
+    try {
+      await axios.get(miner_endpoint + '/channels/update-' + v)
+    } catch (e) {
+      console.error(e)
+    } finally {
+      console.info('finish', v)
+    }
   }
 
   render () {
     const {classes} = this.props
     return (
       <div className='channel'>
-        <Debug name='Component/Channels' state={this.state} stateProps={this.props} />
+        {/* <Debug name='Component/Channels' state={this.state} stateProps={this.props} /> */}
         <ChannelFrame
           classes={classes}
           channels={this.props.channelsPublic}
@@ -131,34 +128,16 @@ class Channels extends React.Component {
           fetchChannel={() => this.fetchChannel('private', this.props.nextPrivate, '25', false)}
           type='private' />
         <Divider />
-        <Button
-          className={classes.button}
-          disabled={(!this.props.validLogin && !this.props.validScope) || this.props.isLoading}
-          variant="raised" color="primary"
-          onClick={() => {
-            this.fetchChannels(true, '1000')
-          }}>
-          Fetch Channels
-        </Button>
-        <Button
-          className={classes.button}
-          disabled={(!this.props.validLogin && !this.props.validScope) || this.props.isLoading}
-          variant="raised" color="primary"
-          onClick={() => {
-            this.fetchUsers()
-          }}>
-          Fetch Users
-        </Button>
       </div>
     )
   }
 }
 
 const mapStateToProps = (state) => ({
-  channelsPublic: state.channel.channels.public,
-  channelsPrivate: state.channel.channels.private,
-  nextPublic: state.channel.next.public,
-  nextPrivate: state.channel.next.private,
+  channelsPublic: state.channeldb.channels.public,
+  channelsPrivate: state.channeldb.channels.private,
+  nextPublic: state.channeldb.next.public,
+  nextPrivate: state.channeldb.next.private,
   isLoading: state.channel.isLoading,
   validLogin: state.user.valid,
   validScope: state.channel.valid
@@ -171,7 +150,6 @@ const matchDispatchToProps = dispatch => {
     startLoading,
     finishLoading,
     failedLoading,
-    openChat,
     collect,
     fetchChannelDB,
     fetchUsersList

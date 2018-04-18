@@ -1,8 +1,9 @@
 // export const miner_host = 'http://localhost:4500'
 // export const miner_endpoint = __DEV__ ? '/miner' : miner_host + '/miner'
-
-export const miner_endpoint = 'http://localhost:6500/miner'
-export const miner_endpoint_db = 'http://localhost:6501/api'
+export const host = __DEV__ ? 'http://localhost:6501' : 'http://localhost:6500'
+export const host_self = 'http://localhost:6501'
+export const miner_endpoint = host + '/miner'
+export const miner_endpoint_db = host_self + '/api'
 
 export const quotes = [
   '“Big Data is like teenage sex: everyone talks about it, nobody really knows how to do it, everyone thinks everyone else is doing it, so everyone claims they are doing it.” – Dan Ariely',
