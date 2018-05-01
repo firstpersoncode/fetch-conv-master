@@ -17,9 +17,13 @@ module.exports = (req, res) => {
   //     )
   //   },
   //   options = { upsert: true, new: true, setDefaultsOnInsert: true };
-
+  const { options, sort, limit } = req.body
     // Find the document
-    Channel.find(req.body.options, (error, result) => {
+    Channel
+    .find(options)
+    .sort(sort)
+    .limit(Number(limit))
+    .exec((error, result) => {
       if (error) return console.error(error)
 
       // do something with the document

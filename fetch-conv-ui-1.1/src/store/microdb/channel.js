@@ -2,6 +2,7 @@ import immutee from 'immutee'
 import axios from 'axios'
 
 import {
+  miner_endpoint,
   miner_endpoint_db
 } from '../../constants'
 
@@ -38,9 +39,9 @@ export function failedLoading () {
   }
 }
 
-export function fetchChannel (endpoint, op) {
+export function fetchChannel (op, project, skip, limit) {
   let options = {
-    is_private: false
+    'detail.is_private': false
   }
 
   options = {
@@ -48,12 +49,39 @@ export function fetchChannel (endpoint, op) {
     ...op
   }
   return (dispatch) => {
-    return axios.post(miner_endpoint_db + '/query' + (endpoint ? '/' + endpoint : ''), options)
+    return axios.post(miner_endpoint + '/manipulate/lists', {
+      options,
+      project,
+      skip,
+      limit
+    })
     .then(res => {
       if (res.status < 201) {
-        return res.data
+        if (options['detail.is_private']) {
+          dispatch({
+            type: FETCH_CHANNEL_PRIVATE,
+            payload: JSON.parse(res.data.message.result)
+          })
+        } else {
+          dispatch({
+            type: FETCH_CHANNEL_PUBLIC,
+            payload: JSON.parse(res.data.message.result)
+          })
+        }
+        return JSON.parse(res.data.message.result)
       } else if (res.status > 201 && res.status < 305) {
-        return res.data
+        if (options['detail.is_private']) {
+          dispatch({
+            type: FETCH_CHANNEL_PRIVATE,
+            payload: JSON.parse(res.data.message.result)
+          })
+        } else {
+          dispatch({
+            type: FETCH_CHANNEL_PUBLIC,
+            payload: JSON.parse(res.data.message.result)
+          })
+        }
+        return JSON.parse(res.data.message.result)
       } else {
         throw new Error('Error fetch data from db: ' + JSON.stringify(res, null, '\t'))
       }
@@ -116,14 +144,14 @@ export default function channelDBReducer (state = initialState, action) {
       .set('error', true)
       .done()
 
-    case FETCH_INFO_PUBLIC:
+    case FETCH_CHANNEL_PUBLIC:
       return immutable
-      .set('channels.public', action.payload)
+      .merge('channels.public', action.payload)
       .done();
 
-    case FETCH_INFO_PRIVATE:
+    case FETCH_CHANNEL_PRIVATE:
       return immutable
-      .set('channels.private', action.payload)
+      .merge('channels.private', action.payload)
       .done();
 
     default:

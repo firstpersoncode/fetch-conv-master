@@ -43,9 +43,11 @@ def not_found(error):
 # Import a module / component using its blueprint handler variable (mod_auth)
 from app.mod_auth.controllers import mod_auth as auth_module
 from app.channel_miner.controllers import channel_miner as channel_module
+from app.channel_manipulation.controllers import channel_manipulation as manipulate_module
 
 # Register blueprint(s)
 app.register_blueprint(auth_module)
 app.register_blueprint(channel_module)
+app.register_blueprint(manipulate_module)
 # app.register_blueprint(xyz_module)
 # ..

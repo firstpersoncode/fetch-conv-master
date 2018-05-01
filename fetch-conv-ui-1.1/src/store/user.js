@@ -8,46 +8,21 @@ import {
 // ------------------------------------
 // Constants
 // ------------------------------------
-export const FETCH_START = 'user/FETCH/USER/START'
-export const FETCH_SUCCESS = 'user/FETCH/USER/SUCCESS'
-export const FETCH_FAILED = 'user/FETCH/USER/FAILED'
 
 export const SET_USER_INFO = 'user/SET/USER'
 export const SET_TEAM_INFO = 'user/SET/TEAM'
 
-export const VALIDATE_START = 'user/VALIDATE/USER/START'
-export const VALIDATE_SUCCESS = 'user/VALIDATE/USER/SUCCESS'
-export const VALIDATE_FAILED = 'user/VALIDATE/USER/FAILED'
+export const VALIDATE_START = 'user/VALIDATE/START'
+export const VALIDATE_SUCCESS_ID = 'user/VALIDATE/SUCCESS/IDENTITY'
+export const VALIDATE_FAILED_ID = 'user/VALIDATE/FAILED/IDENTITY'
+export const VALIDATE_SUCCESS_WK = 'user/VALIDATE/SUCCESS/WORKSPACE'
+export const VALIDATE_FAILED_WK = 'user/VALIDATE/FAILED/WORKSPACE'
 
 export const REVOKE_SUCCESS = 'user/REVOKE/USER/SUCCESS'
 
-let auth_uri = 'https://slack.com/oauth/authorize'
 // ------------------------------------
 // Actions
 // ------------------------------------
-
-export function validate (code) {
-  return (dispatch) => {
-    return axios.post(miner_endpoint + '/auth/validate', {
-      code
-    })
-    .then(res => {
-      if (res.data.message.status) {
-        dispatch({
-          type: VALIDATE_SUCCESS
-        })
-      } else {
-        throw res.data.message.text
-      }
-    })
-    .catch(err => {
-      console.error('Error:', err)
-      dispatch({
-        type: VALIDATE_FAILED
-      })
-    })
-  }
-}
 
 export function revoke () {
   return (dispatch) => {
@@ -71,9 +46,6 @@ export function revoke () {
 
 export function getInfo () {
   return (dispatch) => {
-    dispatch({
-      type: FETCH_START
-    })
     return axios.get(miner_endpoint + '/auth/getinfo')
     .then(res => {
       if (res.data.user) {
@@ -89,39 +61,44 @@ export function getInfo () {
           payload: res.data.team
         })
       }
-
-      dispatch({
-        type: FETCH_SUCCESS
-      })
     })
     .catch(err => {
       console.error(err)
-      dispatch({
-        type: FETCH_FAILED
-      })
     })
   }
 }
 
-export function statusCheck () {
+export function statusCheck (scope) {
   return (dispatch) => {
-    return axios.get(miner_endpoint + '/auth/validate/check')
+    return axios.get(miner_endpoint + (scope === 'identity' ? '/auth/validate/check' : '/channels/validate/check'))
     .then(res => {
       if (res.data.message.status) {
-        let { text } = res.data.message
+        if (scope === 'identity') {
+          dispatch({
+            type: VALIDATE_SUCCESS_ID
+          })
+        } else {
+          dispatch({
+            type: VALIDATE_SUCCESS_WK
+          })
+        }
 
-        dispatch({
-          type: VALIDATE_SUCCESS
-        })
+        return res.data.message.status
       } else {
         throw res.data.message.text
       }
     })
     .catch(err => {
       console.error('Error:', err)
-      dispatch({
-        type: VALIDATE_FAILED
-      })
+      if (scope === 'identity') {
+        dispatch({
+          type: VALIDATE_FAILED_ID
+        })
+      } else {
+        dispatch({
+          type: VALIDATE_FAILED_WK
+        })
+      }
     })
   }
 }
@@ -130,7 +107,10 @@ export function statusCheck () {
 // Reducer
 // ------------------------------------
 const initialState = {
-  valid: false,
+  valid: {
+    identity: false,
+    workspace: false
+  },
   user: null,
   team: null,
   isLoading: false,
@@ -146,34 +126,31 @@ export default function userReducer (state = initialState, action) {
       .set('isLoading', true)
       .done()
 
-    case VALIDATE_SUCCESS:
+    case VALIDATE_SUCCESS_ID:
       return immutable
       .set('isLoading', false)
-      .set('valid', true)
+      .set('valid.identity', true)
       .set('error', false)
       .done()
 
-    case VALIDATE_FAILED:
+    case VALIDATE_SUCCESS_WK:
       return immutable
       .set('isLoading', false)
-      .set('valid', false)
+      .set('valid.workspace', true)
+      .set('error', false)
+      .done()
+
+    case VALIDATE_FAILED_ID:
+      return immutable
+      .set('isLoading', false)
+      .set('valid.identity', false)
       .set('error', true)
       .done()
 
-    case FETCH_START:
-      return immutable
-      .set('isLoading', true)
-      .done()
-
-    case FETCH_SUCCESS:
+    case VALIDATE_FAILED_WK:
       return immutable
       .set('isLoading', false)
-      .set('error', false)
-      .done()
-
-    case FETCH_FAILED:
-      return immutable
-      .set('isLoading', false)
+      .set('valid.workspace', false)
       .set('error', true)
       .done()
 
@@ -190,7 +167,8 @@ export default function userReducer (state = initialState, action) {
     case REVOKE_SUCCESS:
       return immutable
       .set('isLoading', false)
-      .set('valid', false)
+      .set('valid.identity', false)
+      .set('valid.workspace', false)
       .set('user', null)
       .set('team', null)
       .set('error', false)

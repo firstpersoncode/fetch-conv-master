@@ -17,7 +17,7 @@ import Loader from '../Loader'
 class ChannelFrame extends React.Component {
 
   render () {
-    const { classes, channels, expanded, handleChange, handleMaximize, maximize, type, next, isLoading, fetchChannel } = this.props
+    const { classes, channels, expanded, handleChange, handleMaximize, maximize, type, next, isLoading, fetchChannel, validLogin, validScope } = this.props
     return (
       <ExpansionPanel expanded={expanded} onChange={handleChange}>
         <ExpansionPanelSummary onClick={handleMaximize} expandIcon={<ExpandMoreIcon />}>
@@ -50,7 +50,7 @@ class ChannelFrame extends React.Component {
               ? <Loader loading={true} />
               : channels.length && channels.map((channel, i) => {
                 return (
-                  <ListChannel key={i} type={type} classes={classes} channel={channel} />
+                  <ListChannel key={i} type={type} classes={classes} channel={channel.detail} />
                 )
               }) || []
             }
@@ -58,7 +58,7 @@ class ChannelFrame extends React.Component {
         </ExpansionPanelDetails>
         <ExpansionPanelActions>
           <Button
-            variant="raised" color="primary" disabled={!next || isLoading}
+            variant="raised" color="primary" disabled={!(validLogin && validScope) || isLoading}
             onClick={fetchChannel}>
             More ...
           </Button>

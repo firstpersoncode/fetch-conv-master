@@ -21,12 +21,8 @@ import {
 } from '../../store/user'
 
 import {
-  statusCheck as statusCheckLogin
+  statusCheck
 } from '../../store/user'
-
-import {
-  statusCheck as statusCheckScope
-} from '../../store/channel'
 
 const drawerWidth = 450
 
@@ -124,8 +120,8 @@ class WrapperLayout extends React.Component {
   }
 
   componentWillMount () {
-    this.props.statusCheckLogin()
-    this.props.statusCheckScope()
+    this.props.statusCheck('identity')
+    this.props.statusCheck('workspace')
   }
 
   componentWillReceiveProps (nextProps) {
@@ -134,12 +130,6 @@ class WrapperLayout extends React.Component {
     }
     if (nextProps.validLogin !== this.props.validLogin) {
       this.props.getInfo()
-    }
-
-    if (nextProps.validScope !== this.props.validScope) {
-      // this.props.connectRTM()
-      // this.props.startRTM()
-      if (__DEV__) console.log('validScope')
     }
   }
 
@@ -225,16 +215,15 @@ class WrapperLayout extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-  validLogin: state.user.valid,
-  validScope: state.channel.valid,
+  validLogin: state.user.valid.identity,
+  validScope: state.user.valid.workspace,
   location: state.location
 })
 
 const matchDispatchToProps = dispatch => {
   const actions = {
     getInfo,
-    statusCheckLogin,
-    statusCheckScope
+    statusCheck
   }
   return bindActionCreators(actions, dispatch)
 }

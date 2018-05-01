@@ -1,5 +1,5 @@
 import { connect } from 'react-redux'
-import { openChat, openMember, openPins, setChannelOpened } from '../modules/channelDetail'
+import { openChat, openMember, openPins, setChannelOpened, setChannelInfo } from '../modules/channelDetail'
 import { collect } from '../../../store/microdb/channel'
 /*  This is a container component. Notice it does not contain any JSX,
     nor does it import React. This component is **only** responsible for
@@ -17,16 +17,18 @@ const mapDispatchToProps = {
   openMember,
   openPins,
   setChannelOpened,
+  setChannelInfo,
   collect
 }
 
 const mapStateToProps = (state) => ({
-  validLogin: state.user.valid,
-  validScope: state.channel.valid,
+  validLogin: state.user.valid.identity,
+  validScope: state.user.valid.workspace,
   user: state.user.user,
   channelsPublic: state.channeldb.channels.public,
   channelsPrivate: state.channeldb.channels.private,
   channelOpened: state.channelDetail.channelOpened,
+  channelInfo: state.channelDetail.channelInfo,
   messages: state.channelDetail.messages,
   members: state.channelDetail.members,
   pins: state.channelDetail.pins,

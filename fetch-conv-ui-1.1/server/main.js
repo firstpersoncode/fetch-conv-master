@@ -15,29 +15,29 @@ const session = require('client-sessions')
 const { collect, queryCollect, mod_auth, channel_miner } = require('./routes')
 
 const app = express()
-app.use(session({
-  cookieName: 'session',
-  secret: '98nd2m93d3u0k2e32fhewkhriowakddoi',
-  duration: 30 * 60 * 1000,
-  activeDuration: 5 * 60 * 1000,
-}))
-app.use("*", cors())
-app.use(cors())
+// app.use(session({
+//   cookieName: 'session',
+//   secret: '98nd2m93d3u0k2e32fhewkhriowakddoi',
+//   duration: 30 * 60 * 1000,
+//   activeDuration: 5 * 60 * 1000,
+// }))
+// app.use("*", cors())
+// app.use(cors())
 app.use(compress())
-app.use(bodyParser.json({limit: '50mb'}))
-app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
+// app.use(bodyParser.json({limit: '50mb'}))
+// app.use(bodyParser.urlencoded({limit: '50mb', extended: true}))
 // app.use(cookieParser())
 
 db('mongodb://localhost/fetch-conv')
 
-// app.use([
-//   '/miner'
-// ], proxy({
-//   secure: false,
-//   target: 'http://localhost:6500',
-//   changeOrigin: true,
-//   prependPath: false
-// }))
+app.use([
+  '/miner'
+], proxy({
+  secure: false,
+  target: 'http://localhost:6500',
+  changeOrigin: true,
+  prependPath: false
+}))
 
 app.post('/api/collect', collect.channel)
 app.post('/api/collect/message', collect.message)

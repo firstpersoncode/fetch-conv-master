@@ -5,9 +5,10 @@ import AppBar from 'material-ui/AppBar';
 import Tabs, { Tab } from 'material-ui/Tabs';
 import Paper from 'material-ui/Paper'
 import Button from 'material-ui/Button'
-
+import Card, { CardActions, CardContent } from 'material-ui/Card'
 import TabContainer from './TabContainer'
 import MainChart from './MainChart'
+import Grid from 'material-ui/Grid'
 
 const styles = theme => ({
   container: theme.mixins.gutters({
@@ -22,10 +23,29 @@ const styles = theme => ({
     margin: '7px 0',
   },
   preContainer: {
+    padding: 15
+  },
+  codeContainer: {
+    backgroundColor: '#000',
+    color: '#FFF',
     textAlign: 'left',
     maxHeight: '30vh',
     overflow: 'auto',
     padding: 15
+  },
+  card: {
+    minWidth: 100,
+    maxWidth: 500,
+  },
+  title: {
+    marginBottom: 16,
+    fontSize: 14,
+  },
+  pos: {
+    marginBottom: 12,
+  },
+  grid: {
+    wordWrap: 'break-word'
   }
 })
 
@@ -61,9 +81,10 @@ class Channel extends React.Component {
   initialChannel = (props) => {
     const channel = this.mapRenderChannelDetail(props.params.type, props.params.idRoom)
     this.props.setChannelOpened(channel)
-    this.props.openChat(channel, props.params.idRoom, null, 1000, false)
-    this.props.openMember(channel, props.params.idRoom, null, 1000, false)
-    this.props.openPins(channel, props.params.idRoom)
+    this.props.setChannelInfo(props.params.idRoom)
+    // this.props.openChat(channel, props.params.idRoom, null, 1000, false)
+    // this.props.openMember(channel, props.params.idRoom, null, 1000, false)
+    // this.props.openPins(channel, props.params.idRoom)
   }
 
   handleChange = (event, value) => {
@@ -83,6 +104,25 @@ class Channel extends React.Component {
     return res[type]
   }
 
+  renderCard = (attr, value) => {
+    const {classes} = this.props
+    return (
+      <Grid className={classes.grid} item>
+        <Card className={classes.card}>
+          <CardContent>
+            <h2 className={classes.title} color="textSecondary">
+              {attr}
+            </h2>
+            {value}
+          </CardContent>
+          <CardActions>
+            <Button size="small">Learn More</Button>
+          </CardActions>
+        </Card>
+      </Grid>
+    )
+  }
+
   render () {
     const { classes, theme } = this.props;
 
@@ -96,7 +136,7 @@ class Channel extends React.Component {
             textColor="primary"
             centered
           >
-            <Tab label="Item One" />
+            <Tab label="Summary" />
             <Tab label="Item Two" />
             <Tab label="Item Three" />
           </Tabs>
@@ -108,58 +148,37 @@ class Channel extends React.Component {
         >
           <TabContainer dir={theme.direction}>
             <Paper className={classes.preContainer} elevation={4}>
-              <pre>
-                # from channelDetail reducer
-                <code>
-                  {
-                    JSON.stringify(this.props.channelOpened, null, '\t')
-                  }
-                </code>
-              </pre>
-            </Paper>
-            <Paper className={classes.preContainer} elevation={4}>
-              <pre>
-                # Fresh fetched from server and merged in channelDetail reducer (Messages)
-                <code>
-                  {
-                    JSON.stringify(this.props.messages, null, '\t')
-                  }
-                </code>
-              </pre>
-              <Button disabled={!this.props.nextMessage} onClick={() => this.props.openChat(this.props.channelOpened, this.props.params.idRoom, this.props.nextMessage, 15, true)} variant="raised" color="primary">
-                More Message
-              </Button>
-              <Button disabled={!this.props.nextMessage} onClick={() => this.props.collect(this.props.messages, 'message')} variant="raised" color="primary">
-                Collect Message
-              </Button>
-            </Paper>
-            <Paper className={classes.preContainer} elevation={4}>
-              <pre>
-                # Fresh fetched from server and merged in channelDetail reducer (Members)
-                <code>
-                  {
-                    JSON.stringify(this.props.members, null, '\t')
-                  }
-                </code>
-              </pre>
-              <Button onClick={() => this.props.openMember(this.props.channelOpened, this.props.params.idRoom, this.props.nextMember, 15, true)} variant="raised" color="primary">
-                More Members
-              </Button>
-            </Paper>
-            <Paper className={classes.preContainer} elevation={4}>
-              <pre>
-                # Fresh fetched from server and merged in channelDetail reducer (Pins)
-                <code>
-                  {
-                    JSON.stringify(this.props.pins, null, '\t')
-                  }
-                </code>
-              </pre>
+              {
+                (this.props.channelOpened && this.props.channelInfo) && (
+                  <Grid item xs={12}>
+                    <h2>{this.props.channelOpened.detail.name}</h2>
+                    <Grid container justify="flex-start" spacing={16}>
+                      {this.renderCard('ID', this.props.channelOpened.id)}
+                      {this.renderCard('Name', this.props.channelOpened.detail.name)}
+                      {this.renderCard('Creator', this.props.channelOpened.detail.creator)}
+                      {this.renderCard('Messages', this.props.channelInfo.total_messages)}
+                      {this.renderCard('Members', this.props.channelInfo.total_members)}
+                      {this.renderCard('Topic', this.props.channelOpened.detail.topic.value)}
+                      {this.renderCard('Purpose', this.props.channelOpened.detail.purpose.value)}
+                    </Grid>
+                  </Grid>
+                ) || ''
+              }
+              <h4>JSON Structure</h4>
+              <div className={classes.codeContainer}>
+                <pre style={{color: '#FFF'}}>
+                  <code>
+                    {
+                      JSON.stringify(this.props.channelOpened, null, '\t')
+                    }
+                  </code>
+                </pre>
+              </div>
             </Paper>
           </TabContainer>
           <TabContainer dir={theme.direction}>
             Dummy chart
-            <MainChart />
+            <MainChart channelInfo={this.props.channelInfo} />
           </TabContainer>
           <TabContainer dir={theme.direction}>
             item 3

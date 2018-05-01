@@ -13,24 +13,15 @@ import IconButton from 'material-ui/IconButton'
 import Button from 'material-ui/Button'
 
 class ListChannel extends React.Component {
-  state = {
-    idRoom: '',
-    type: ''
-  }
-
-  handleGetChannelDetail = (id, type) => {
-    this.setState({
-      idRoom: id,
-      type
-    }, () => browserHistory.push('/channel/' + this.state.type + '/' + this.state.idRoom))
-  }
 
   render () {
     const {classes, channel, type} = this.props
     return (
-      <ListItem className={classes.channelContainer} button onClick={() => {
-        this.handleGetChannelDetail(channel.id, type)
-      }} disabled={channel.info && channel.info.is_archived || false}>
+      <ListItem
+        button
+        className={classes.channelContainer}
+        onClick={() => browserHistory.push('/channel/' + type + '/' + channel.id)}
+        disabled={channel.info && channel.info.is_archived || false}>
         <ListItemAvatar>
           <Avatar>
             {
@@ -45,7 +36,7 @@ class ListChannel extends React.Component {
         </ListItemAvatar>
         <ListItemText
           primary={channel.name}
-          secondary={channel.purpose.value ? channel.purpose.value : null}
+          secondary={channel.purpose.value ? <span style={{"word-wrap":"break-word"}}>{channel.purpose.value}</span> : null}
         />
         <ListItemSecondaryAction onClick={() => {
           this.handleGetChannelDetail(channel.id, type)

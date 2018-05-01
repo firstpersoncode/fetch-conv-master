@@ -30,6 +30,18 @@ export function setChannelOpened (channel) {
   }
 }
 
+export function setChannelInfo (id) {
+  return (dispatch) => {
+    return axios.get(miner_endpoint + '/manipulate/messages' + '/' + id)
+    .then(res => {
+      dispatch({
+        type: 'SET_CHANNEL_INFO',
+        payload: res.data.message.result
+      })
+    })
+  }
+}
+
 export function openChat (channel, id, cursor, limit, appending) {
   let next = cursor && (cursor.includes('=') ? cursor.replace('=', '%3D') : cursor) || ''
   return (dispatch, getState) => {
@@ -167,6 +179,7 @@ export function openPins (channel, id) {
 // ------------------------------------
 const initialState = {
   channelOpened: null,
+  channelInfo: null,
   messages: {
     id: null,
     name: null,
@@ -195,6 +208,11 @@ export default function chatReducer (state = initialState, action) {
     case 'SET_CHANNEL':
       return immutable
       .set('channelOpened', action.payload)
+      .done()
+
+    case 'SET_CHANNEL_INFO':
+      return immutable
+      .set('channelInfo', action.payload)
       .done()
 
     case CHANNEL_START:

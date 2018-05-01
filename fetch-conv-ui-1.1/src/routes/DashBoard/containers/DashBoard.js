@@ -6,7 +6,7 @@ import {
   finishLoading,
   failedLoading,
   fetchUsersList
-} from '../../../store/channel'
+} from '../modules/dashboard'
 
 import {
   fetchChannel as fetchChannelDB,
@@ -35,8 +35,8 @@ const mapDispatchToProps = {
 }
 
 const mapStateToProps = (state) => ({
-  validLogin: state.user.valid,
-  validScope: state.channel.valid,
+  validLogin: state.user.valid.identity,
+  validScope: state.user.valid.workspace,
   user: state.user.user,
   channelsPublic: state.channeldb.channels.public,
   channelsPrivate: state.channeldb.channels.private,

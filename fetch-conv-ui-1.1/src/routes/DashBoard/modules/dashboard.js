@@ -1,252 +1,130 @@
 import immutee from 'immutee'
 import axios from 'axios'
+
 import {
   miner_endpoint
 } from '../../../constants'
-// ------------------------------------
-// Constants
-// ------------------------------------
-export const CHANNEL_START = 'detail/CHANNEL/START'
-export const CHANNEL_SUCCESS = 'detail/CHANNEL/SUCCESS'
-export const CHANNEL_FAILED = 'detail/CHANNEL/FAILED'
 
-export const CHANNEL_OPENED = 'detail/CHANNEL/OPEN'
-export const CHANNEL_MEMBERS = 'detail/CHANNEL/MEMBERS'
-export const CHANNEL_PINS = 'detail/CHANNEL/PINS'
+export const VALIDATE_START = 'dashboard/VALIDATE/CHANNELS/START'
+export const VALIDATE_SUCCESS = 'dashboard/VALIDATE/CHANNELS/SUCCESS'
+export const VALIDATE_FAILED = 'dashboard/VALIDATE/CHANNELS/FAILED'
 
-export const APPEND_MESSAGE = 'detail/CHANNEL/APPEND/MESSAGE'
-export const APPEND_MEMBERS = 'detail/CHANNEL/APPEND/MEMBERS'
+export const FETCH_START = 'dashboard/FETCH/CHANNELS/START'
+export const FETCH_SUCCESS = 'dashboard/FETCH/CHANNELS/SUCCESS'
+export const FETCH_FAILED = 'dashboard/FETCH/CHANNELS/FAILED'
 
-// ------------------------------------
-// Actions
-// ------------------------------------
+export const FETCH_CHANNEL_PUBLIC = 'dashboard/FETCH/CHANNELS/PUBLIC'
+export const FETCH_CHANNEL_PRIVATE = 'dashboard/FETCH/CHANNELS/PRIVATE'
 
-export function setChannelOpened (channel) {
+export const FETCH_INFO_PUBLIC = 'dashboard/FETCH/INFO/PUBLIC'
+export const FETCH_INFO_PRIVATE = 'dashboard/FETCH/INFO/PRIVATE'
+
+let auth_uri = 'https://slack.com/oauth/authorize'
+
+export function startLoading () {
+  return {
+    type: FETCH_START
+  }
+}
+
+export function finishLoading () {
+  return {
+    type: FETCH_SUCCESS
+  }
+}
+
+export function failedLoading () {
+  return {
+    type: FETCH_FAILED
+  }
+}
+
+export function fetchChannelLists(type, c_filter, cursor, limit, firstFetch) {
+  let next = cursor && cursor.replace('=', '%3D') || ''
+  return (dispatch, getState) => {
+    return axios.get(miner_endpoint + '/channels/list' + '/' + c_filter + '/' + type + (next ? '/' + next : (firstFetch ? '/first' : '/end')) + '/' + limit)
+    .then(res => {
+      return res.data.channels
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  }
+}
+
+export function fetchChannelInfo (type, id) {
+  return (dispatch) => {
+    return axios.get(miner_endpoint + '/channels/info' + '/' + type + '/' + id)
+    .then(res => {
+      return res.data.channel
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  }
+}
+
+export function fetchUsersList () {
+  return (dispatch) => {
+    return axios.get(miner_endpoint + '/channels/users')
+    .then(res => {
+      return res.data.members
+    })
+    .catch(err => {
+      console.error(err)
+    })
+  }
+}
+
+export function statusCheck () {
   return (dispatch) => {
     dispatch({
-      type: 'SET_CHANNEL',
-      payload: channel
+      type: VALIDATE_START
     })
-  }
-}
-
-export function openChat (channel, id, cursor, limit, appending) {
-  let next = cursor && (cursor.includes('=') ? cursor.replace('=', '%3D') : cursor) || ''
-  return (dispatch, getState) => {
-    dispatch({
-      type: CHANNEL_START
-    })
-    return axios.get(miner_endpoint + '/channels/messages' + '/' + id + '/' + (next ? next : !appending ? 'first' : 'end') + '/' + limit)
+    return axios.get(miner_endpoint + '/channels/validate/check')
     .then(res => {
-      // if (res.data.ok) {
-      //   if (appending) {
-      //     dispatch({
-      //       type: APPEND_MESSAGE,
-      //       messages: res.data.messages,
-      //       next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-      //     })
-      //   } else {
-      //     dispatch({
-      //       type: CHANNEL_OPENED,
-      //       name: channel.name,
-      //       id,
-      //       messages: res.data.messages,
-      //       next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-      //     })
-      //   }
-      //
-      //   dispatch({
-      //     type: CHANNEL_SUCCESS
-      //   })
-      //
-      //   return {
-      //     id,
-      //     name: channel.name,
-      //     data: res.data.messages,
-      //   }
-      // } else {
-      //   throw new Error('Failed set channel', res)
-      // }
-    })
-    .catch(err => {
-      console.error(err)
-      dispatch({
-        type: CHANNEL_FAILED
-      })
-    })
-  }
-}
-
-export function openMember (channel, id, cursor, limit, appending) {
-  let next = cursor && (cursor.includes('=') ? cursor.replace('=', '%3D') : cursor) || ''
-  return (dispatch, getState) => {
-    dispatch({
-      type: CHANNEL_START
-    })
-    return axios.get(miner_endpoint + '/channels/members' + '/' + id + '/' + (next ? next : !appending ? 'first' : 'end') + '/' + limit)
-    .then(res => {
-      if (res.data.ok) {
-        if (appending) {
-          dispatch({
-            type: APPEND_MEMBERS,
-            members: res.data.members,
-            next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-          })
-        } else {
-          dispatch({
-            type: CHANNEL_MEMBERS,
-            name: channel.name,
-            id,
-            members: res.data.members,
-            next: res.data.response_metadata && res.data.response_metadata.next_cursor || ''
-          })
-        }
-
+      if (res.data.message.status) {
+        let { text } = res.data.message
         dispatch({
-          type: CHANNEL_SUCCESS
+          type: VALIDATE_SUCCESS
         })
-
-        return {
-          name: channel.name,
-          id,
-          members: res.data.members
-        }
       } else {
-        throw new Error('Failed set channel', res)
+        throw res.data.message.text
       }
     })
     .catch(err => {
-      console.error(err)
+      console.error('Error:', err)
       dispatch({
-        type: CHANNEL_FAILED
+        type: VALIDATE_FAILED
       })
     })
   }
 }
 
-export function openPins (channel, id) {
-  return (dispatch, getState) => {
-    dispatch({
-      type: CHANNEL_START
-    })
-    return axios.get(miner_endpoint + '/channels/pins' + '/' + id)
-    .then(res => {
-      if (res.data.ok) {
-        dispatch({
-          type: CHANNEL_PINS,
-          name: channel.name,
-          id,
-          pins: res.data.items
-        })
-
-        dispatch({
-          type: CHANNEL_SUCCESS
-        })
-
-        return {
-          name: channel.name,
-          id,
-          pins: res.data.pins
-        }
-      } else {
-        throw new Error('Failed set channel', res)
-      }
-    })
-    .catch(err => {
-      console.error(err)
-      dispatch({
-        type: CHANNEL_FAILED
-      })
-    })
-  }
-}
-
-
-// ------------------------------------
-// Reducer
-// ------------------------------------
 const initialState = {
-  channelOpened: null,
-  messages: {
-    id: null,
-    name: null,
-    data: []
-  },
-  members: {
-    id: null,
-    name: null,
-    data: []
-  },
-  pins: {
-    id: null,
-    name: null,
-    data: []
-  },
-  nextMessage: '',
-  nextMember: '',
   isLoading: false,
   error: null
-}
+};
 
-export default function chatReducer (state = initialState, action) {
+export default function channelReducer (state = initialState, action) {
   const immutable = immutee(state);
   switch (action.type) {
 
-    case 'SET_CHANNEL':
-      return immutable
-      .set('channelOpened', action.payload)
-      .done()
-
-    case CHANNEL_START:
+    case FETCH_START:
       return immutable
       .set('isLoading', true)
       .done()
 
-    case CHANNEL_SUCCESS:
+    case FETCH_SUCCESS:
       return immutable
       .set('isLoading', false)
       .set('error', false)
       .done()
 
-    case CHANNEL_FAILED:
+    case FETCH_FAILED:
       return immutable
       .set('isLoading', false)
       .set('error', true)
-      .done()
-
-    // case CHANNEL_OPENED:
-    //   return immutable
-    //   .set('messages.name', action.name)
-    //   .set('messages.id', action.id)
-    //   .set('messages.data', action.messages)
-    //   .set('nextMessage', action.next)
-    //   .done()
-
-    case CHANNEL_MEMBERS:
-      return immutable
-      .set('members.name', action.name)
-      .set('members.id', action.id)
-      .set('members.data', action.members)
-      .set('nextMember', action.next)
-      .done()
-
-    // case APPEND_MESSAGE:
-    //   return immutable
-    //   .merge('messages.data', action.messages)
-    //   .set('nextMessage', action.next)
-    //   .done()
-
-    case APPEND_MEMBERS:
-      return immutable
-      .merge('members.data', action.members)
-      .set('nextMember', action.next)
-      .done()
-
-    case CHANNEL_PINS:
-      return immutable
-      .set('pins.name', action.name)
-      .set('pins.id', action.id)
-      .set('pins.data', action.pins)
       .done()
 
     default:

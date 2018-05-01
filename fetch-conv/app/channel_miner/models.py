@@ -24,6 +24,26 @@ class Channel:
     def getAll(self, skip, limit):
         return self.collection.find({}).limit(limit).skip(skip)
 
+class ChannelInfo:
+    def __init__(self):
+        self.collection = db['channels']
+
+    def addChannel(self, data):
+        self.collection.find_one_and_update({
+            'id': data['id']
+        }, {
+          '$set': {
+            'detail': data,
+            'updated': datetime.datetime.utcnow()
+          }
+        }, upsert=True, new=True)
+
+    def getChannelById(self, c_id):
+        return self.collection.find_one({'id': c_id})
+
+    def getAll(self, skip, limit):
+        return self.collection.find({}).limit(limit).skip(skip)
+
 class Messages:
     def __init__(self):
         self.collection = db['messages']

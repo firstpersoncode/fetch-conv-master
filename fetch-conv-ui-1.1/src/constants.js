@@ -1,8 +1,9 @@
 // export const miner_host = 'http://localhost:4500'
 // export const miner_endpoint = __DEV__ ? '/miner' : miner_host + '/miner'
-export const host = __DEV__ ? 'http://localhost:6501' : 'http://localhost:6500'
+// export const host = __DEV__ ? 'http://localhost:6501' : 'http://localhost:6500'
 export const host_self = 'http://localhost:6501'
-export const miner_endpoint = host + '/miner'
+// export const miner_endpoint = host + '/miner'
+export const miner_endpoint = '/miner'
 export const miner_endpoint_db = host_self + '/api'
 
 export const quotes = [

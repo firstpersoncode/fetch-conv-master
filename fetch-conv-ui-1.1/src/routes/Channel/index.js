@@ -1,8 +1,31 @@
 // import { injectReducer } from '../../store/reducers'
-
+import { statusCheck } from '../../store/user'
 export default (store) => ({
   path : 'channel(/:type)(/:idRoom)',
   /*  Async getComponent is only invoked when route matches   */
+  onEnter: (nextState, replace, cb) => {
+    store.dispatch(statusCheck('identity'))
+    .then(res => {
+      if (res) {
+        return store.dispatch(statusCheck('workspace'))
+      } else {
+        throw res
+      }
+    })
+    .then(res => {
+      if (res) {
+        cb()
+      } else {
+        throw res
+      }
+    })
+    .catch(err => {
+      console.error(err)
+      replace('/')
+      cb()
+    })
+  },
+
   getComponent (nextState, cb) {
     /*  Webpack - use 'require.ensure' to create a split point
         and embed an async module loader (jsonp) when bundling   */

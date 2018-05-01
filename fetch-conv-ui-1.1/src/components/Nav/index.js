@@ -72,7 +72,7 @@ class Nav extends React.Component {
               !this.props.validLogin && !this.props.validScope
               ? (
                 <Button variant="raised" className={classes.button} onClick={() => {
-                  window.location.href = __DEV__ ? '/miner/auth/signin?redirect='+encodeURIComponent(window.location.origin) : redirect
+                  window.location.href = redirect
                 }}>Sign In</Button>
               ) : (
                 <IconButton
@@ -96,7 +96,7 @@ class Nav extends React.Component {
               !this.props.validLogin && !this.props.validScope
               ? (
                 <Button size='small' variant="raised" className={classes.button} onClick={() => {
-                  window.location.href = __DEV__ ? '/miner/auth/signin?redirect='+encodeURIComponent(window.location.origin) : redirect
+                  window.location.href = redirect
                 }}>Sign In</Button>
               ) : (
                 <IconButton
@@ -136,8 +136,8 @@ class Nav extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-  validLogin: state.user.valid,
-  validScope: state.channel.valid
+  validLogin: state.user.valid.identity,
+  validScope: state.user.valid.workspace
 })
 
 const matchDispatchToProps = dispatch => {
